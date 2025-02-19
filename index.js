@@ -53,6 +53,25 @@ app.get('/employees/create', async function (req,res){
 
 })
 
+app.post ('/employees/create', async function (req,res){
+    {
+        const firstName = req.body.first_name;
+        const lastName = req.body.last_name
+        const departmentId = req.body.department_id;
+
+        const sql = `insert into Employees (first_name, last_name, department_id) values (?,?,?);`
+
+        const bindings = [firstName, lastName, departmentId]
+
+        await connection.execute(sql,bindings);
+        res.redirect("/employees");
+
+
+        
+    }
+})
+
+
 app.get('/employees/:employee_id/delete',async function(req,res){
     try{
         const employeeId = req.params.employee_id;
@@ -85,11 +104,44 @@ app.post('/employees/:employee_id/delete', async function (req,res){
     }
 })
 
+app.get('/employees/:employee_id/edit', async function (req,res){
+    const bindings = [req.params.employee_id]
+    const [employees] = await connection.execute("select * from Employees where employee_id = ?", bindings);
+    const employeeToUpdate= employees[0];
+
+    const [departments] = await connection.execute("select * from Departments");
+
+    res.render('employees/update',{
+        employee: employeeToUpdate,
+        departments: departments
+    })
+})
+
+app.post('/employees/:employee_id/edit', async function (req,res){
+    const query = `
+    update Employees set first_name = ?, last_name = ?, department_id=? where employee_id=?;
+    `
+    const bindings = [req.body.first_name,
+                    req. body.last_name,
+                    req.body.department_id,
+                    req.params.employee_id];
+
+
+        await connection.execute(query, bindings);
+        res.redirect("/employees");            
+
+
+
+    
+})
+
+
+
 
 }
 main();
 
-app.listen(3000, ()=>{
+app.listen(3001, ()=>{
     console.log('Server is running')
 });
 
