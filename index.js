@@ -43,6 +43,16 @@ app.get('/employees', async function (req,res){
     });
 });
 
+app.get('/employees/create', async function (req,res){
+    const results = await connection.execute('select * from Departments');
+    const departments = results[0];
+
+    res.render('employees/create',{
+        "departments":departments
+    })
+
+})
+
 app.get('/employees/:employee_id/delete',async function(req,res){
     try{
         const employeeId = req.params.employee_id;
@@ -60,6 +70,20 @@ app.get('/employees/:employee_id/delete',async function(req,res){
     }
 });
 
+app.post('/employees/:employee_id/delete', async function (req,res){
+    try{ 
+        const employeeId = req.params.employee_id;
+        const query = 'delete from Employees where employee_id = ?';
+        await connection.execute(query,[employeeId]);
+        res.redirect('/employees');
+    }
+    catch (e) {
+        console.log(e);
+        res.render("error", {
+            'errorMessage' : 'Unable to process delete. Contact admin or try again'
+        })
+    }
+})
 
 
 }
