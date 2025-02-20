@@ -34,6 +34,23 @@ async function main() {
         res.render('home')
     })
 
+
+app.get('/customers', async function (req,res){
+    try {
+        const [customers] = await connection.execute(`
+            select * from Customers join Companies on Companies.company_id = Customers.company_id`
+        );
+
+        res.render('customers/index',{
+            customers: customers
+        });
+    }
+    catch (error) {
+        console.error("Error fetching customers");
+    }
+});
+
+
     app.get('/employees', async function (req, res) {
         const firstName = req.query.first_name;
         const lastName = req.query.last_name;
@@ -169,7 +186,7 @@ async function main() {
 }
 main();
 
-app.listen(3010, () => {
+app.listen(3000, () => {
     console.log('Server is running')
 });
 
